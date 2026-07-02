@@ -2189,8 +2189,8 @@ test "renderer - buffered debug dump includes non-threaded last render" {
     const cli_renderer = test_cli_renderer.renderer;
     try std.testing.expect(!cli_renderer.backend.isUseThread());
 
-    const fg = RGBA{ 1.0, 1.0, 1.0, 1.0 };
-    const bg = RGBA{ 0.0, 0.0, 0.0, 1.0 };
+    const fg = ansi.rgbaFromFloats(1.0, 1.0, 1.0, 1.0);
+    const bg = ansi.rgbaFromFloats(0.0, 0.0, 0.0, 1.0);
     const next_buffer = cli_renderer.getNextBuffer();
     try next_buffer.drawText("DUMP", 0, 0, fg, bg, 0);
 
@@ -2224,8 +2224,8 @@ test "FeedBackend - renderer writes through feed" {
     defer feed.destroy();
     defer cli_renderer.destroy();
 
-    const fg = RGBA{ 1.0, 1.0, 1.0, 1.0 };
-    const bg = RGBA{ 0.0, 0.0, 0.0, 1.0 };
+    const fg = ansi.rgbaFromFloats(1.0, 1.0, 1.0, 1.0);
+    const bg = ansi.rgbaFromFloats(0.0, 0.0, 0.0, 1.0);
     const next_buffer = cli_renderer.getNextBuffer();
     try next_buffer.drawText("Hello", 0, 0, fg, bg, 0);
 
@@ -2268,8 +2268,8 @@ test "FeedBackend - shouldSkipFrame when span queue saturated" {
 
     // Render a few frames to build up pending spans. Each render commits one
     // span, so after 2 renders without draining we should be at capacity.
-    const fg = RGBA{ 1.0, 1.0, 1.0, 1.0 };
-    const bg = RGBA{ 0.0, 0.0, 0.0, 1.0 };
+    const fg = ansi.rgbaFromFloats(1.0, 1.0, 1.0, 1.0);
+    const bg = ansi.rgbaFromFloats(0.0, 0.0, 0.0, 1.0);
     const next_buffer = cli_renderer.getNextBuffer();
     try next_buffer.drawText("A", 0, 0, fg, bg, 0);
     _ = cli_renderer.render(false);
@@ -2434,8 +2434,8 @@ test "two renderers on buffered backend have independent buffers" {
     defer test_r2.deinit();
     const r2 = test_r2.renderer;
 
-    const fg = RGBA{ 1.0, 1.0, 1.0, 1.0 };
-    const bg = RGBA{ 0.0, 0.0, 0.0, 1.0 };
+    const fg = ansi.rgbaFromFloats(1.0, 1.0, 1.0, 1.0);
+    const bg = ansi.rgbaFromFloats(0.0, 0.0, 0.0, 1.0);
 
     const b1 = r1.getNextBuffer();
     try b1.drawText("AAA", 0, 0, fg, bg, 0);
@@ -2467,8 +2467,8 @@ test "threaded buffered destroy: no stale write after shutdown ANSI" {
     cli_renderer.setUseThread(true);
     try std.testing.expect(cli_renderer.backend.isUseThread());
 
-    const fg = RGBA{ 1.0, 1.0, 1.0, 1.0 };
-    const bg = RGBA{ 0.0, 0.0, 0.0, 1.0 };
+    const fg = ansi.rgbaFromFloats(1.0, 1.0, 1.0, 1.0);
+    const bg = ansi.rgbaFromFloats(0.0, 0.0, 0.0, 1.0);
     const nb = cli_renderer.getNextBuffer();
     try nb.drawText("STALE", 0, 0, fg, bg, 0);
     _ = cli_renderer.render(false);

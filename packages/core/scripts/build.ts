@@ -61,6 +61,7 @@ const variants: Variant[] = [
   { platform: "darwin", arch: "arm64" },
   { platform: "linux", arch: "x64" },
   { platform: "linux", arch: "arm64" },
+  { platform: "linux", arch: "loong64" },
   { platform: "linux", arch: "x64", abi: "musl" },
   { platform: "linux", arch: "arm64", abi: "musl" },
   { platform: "win32", arch: "x64" },
@@ -83,7 +84,7 @@ if (!buildLib && !buildNative) {
 
 const getZigTarget = (platform: string, arch: string, abi?: string): string => {
   const platformMap: Record<string, string> = { darwin: "macos", win32: "windows", linux: "linux" }
-  const archMap: Record<string, string> = { x64: "x86_64", arm64: "aarch64" }
+  const archMap: Record<string, string> = { x64: "x86_64", arm64: "aarch64", loong64: "loongarch64" }
   const base = `${archMap[arch] ?? arch}-${platformMap[platform] ?? platform}`
   return abi ? `${base}-${abi}` : base
 }
