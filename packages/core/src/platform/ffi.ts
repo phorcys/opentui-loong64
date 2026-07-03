@@ -120,7 +120,7 @@ interface BunFfiBackend {
   dlopen<Fns extends Record<string, BunFFIFunction>>(path: string | URL, symbols: Fns): BunFfiLibrary<Fns>
   ptr(value: PointerSource): Pointer
   suffix: string
-  toArrayBuffer(pointer: BunPointer, offset: number | undefined, length: number): ArrayBuffer
+  toArrayBuffer(pointer: BunPointer, offset: number | undefined, length: number): ArrayBuffer | Error
 }
 
 interface NodeFFIFunction {
@@ -376,7 +376,14 @@ export function createBunBackend(bun: BunFfiBackend): FfiBackend {
     toArrayBuffer(pointer, offset, length) {
       // Bun only accepts numeric pointers here. Keep the coercion at this
       // backend boundary.
-      return bun.toArrayBuffer(toBunPointer(pointer), offset, length)
+      try {
+        return bun.toArrayBuffer(toBunPointer(pointer), offset, length)
+      } catch (e) {
+        if (typeof process !== "undefined" && process.env?.OPENCODE_DEBUG_NATIVE) {
+          console.error("OpenTUI toArrayBuffer failed", { pointer, offset, length, error: String(e) }, new Error().stack)
+        }
+        throw e
+      }
     },
   }
 }
