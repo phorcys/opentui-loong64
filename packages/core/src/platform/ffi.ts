@@ -377,7 +377,12 @@ export function createBunBackend(bun: BunFfiBackend): FfiBackend {
       // Bun only accepts numeric pointers here. Keep the coercion at this
       // backend boundary.
       try {
-        return bun.toArrayBuffer(toBunPointer(pointer), offset, length)
+        const buffer = bun.toArrayBuffer(toBunPointer(pointer), offset, length)
+        if (buffer instanceof Error) {
+          throw buffer
+        }
+
+        return buffer
       } catch (e) {
         if (typeof process !== "undefined" && process.env?.OPENCODE_DEBUG_NATIVE) {
           console.error("OpenTUI toArrayBuffer failed", { pointer, offset, length, error: String(e) }, new Error().stack)
