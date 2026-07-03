@@ -26,6 +26,7 @@ function createMockBackend() {
   const symbolDefinitions: unknown[] = []
   const callbackDefinitions: unknown[] = []
   const toArrayBufferPointers: number[] = []
+  let toArrayBufferError: Error | undefined
   const rawCallbacks: MockJSCallback[] = []
   let nextPtr = 1
 
@@ -70,11 +71,24 @@ function createMockBackend() {
     suffix: ".mock",
     toArrayBuffer(pointer, _offset, length) {
       toArrayBufferPointers.push(pointer)
+      if (toArrayBufferError) {
+        return toArrayBufferError
+      }
       return new ArrayBuffer(length)
     },
   })
 
-  return { backend, callbackDefinitions, events, rawCallbacks, symbolDefinitions, toArrayBufferPointers }
+  return {
+    backend,
+    callbackDefinitions,
+    events,
+    rawCallbacks,
+    setToArrayBufferError(error: Error) {
+      toArrayBufferError = error
+    },
+    symbolDefinitions,
+    toArrayBufferPointers,
+  }
 }
 
 interface MockNodeBackendOptions {
@@ -214,6 +228,16 @@ describe("platform/ffi", () => {
     expect((callbackDefinitions[0] as any).ptr).toBe(13)
 
     backend.toArrayBuffer(14n as Pointer, 0, 1)
+    expect(toArrayBufferPointers).toEqual([14])
+  })
+
+  test("throws Bun toArrayBuffer errors at the backend boundary", () => {
+    const { backend, setToArrayBufferError, toArrayBufferPointers } = createMockBackend()
+    const error = new TypeError("bad native buffer")
+
+    setToArrayBufferError(error)
+
+    expect(() => backend.toArrayBuffer(14n as Pointer, 0, 1)).toThrow(error)
     expect(toArrayBufferPointers).toEqual([14])
   })
 
